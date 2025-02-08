@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #6a82fb, #fc5c7d, #ff8a00, #34e7e4);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0 20px;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 100% 0;
+            }
+            50% {
+                background-position: 0 100%;
+            }
+            100% {
+                background-position: 100% 0;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            text-align: center;
+            width: 100%;
+            max-width: 1000px;
+            padding: 40px;
+            background: rgba(45, 45, 70, 0.9);
+            border-radius: 25px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: fadeIn 2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            background-size: 400% 400%;
+            animation: gradientText 6s ease infinite;
+            -webkit-background-clip: text;
+            background-clip: text;
+            padding: 12px;
+            text-shadow: 0px 4px 15px rgba(0, 0, 0, 0.8);
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 2s ease forwards 0.5s;
+        }
+
+        @keyframes gradientText {
+            0% {
+                background-position: 100% 0;
+            }
+            50% {
+                background-position: 0 100%;
+            }
+            100% {
+                background-position: 100% 0;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .box {
+            background: rgba(45, 45, 70, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background: #3b3b5c;
+        }
+
+        tr:nth-child(even) {
+            background: #4a4a6e;
+        }
+
+        tr:hover {
+            background: #3f3f5c;
+        }
+
+        .btn-ban {
+            background: #fc5c7d;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ban:hover {
+            background: #6a82fb;
+            transform: translateY(-3px);
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-ban:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .box:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .floating-header {
+            animation: floating 5s ease-in-out infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            opacity: 0;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes floating {
+            0% {
+                transform: translate(-50%, -50%) translateY(0);
+                opacity: 1;
+            } 
+            50% {
+                transform: translate(-50%, -50%) translateY(-50px);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translate(-50%, -50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+
+    <div class="container">
+        <div class="box">
+            <h2>Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>IP Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                        <tr>
+                            <td>{{ log.username }}</td>
+                            <td>{{ log.ip_address }}</td>
+                            <td>
+                                <form action="{{ url_for('ban_user', username=log.username) }}" method="POST">
+                                    <input type="hidden" name="username" value="{{ log.username }}">
+                                    <button type="submit" class="btn-ban">Ban</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="box">
+            <h2>Chats</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Chat Name</th>
+                        <th>Chat ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chat in chats %}
+                    <tr>
+                        <td>{{ chat.name }}</td>
+                        <td>{{ chat.chat_id }}</td>
+                        <td>
+                            <form action="{{ url_for('ban_chat', chat_id=chat['chat_id']) }}" method="POST">
+                                <input type="hidden" name="chat_id" value="{{ chat.chat_id }}">
+                                <button type="submit" class="btn-ban">Ban</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
